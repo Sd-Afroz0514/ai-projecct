@@ -237,6 +237,16 @@ def api_info():
         "time": datetime.now(timezone.utc).isoformat()
     }
 
+@app.get("/api/docs", include_in_schema=False)
+def api_docs_redirect():
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url="/docs")
+
+@app.get("/api/redoc", include_in_schema=False)
+def api_redoc_redirect():
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url="/redoc")
+
 # Frontend SPA Direct Application Serving for Deployment
 FRONTEND_DIST_DIR = Path(__file__).resolve().parent.parent / "frontend" / "dist"
 

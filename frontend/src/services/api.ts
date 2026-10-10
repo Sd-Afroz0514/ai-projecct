@@ -27,27 +27,23 @@ import {
 const envApiUrl = import.meta.env.VITE_API_BASE_URL;
 
 // Determine API Base URL dynamically:
-// - In production / deployed access (not on dev ports 5173/3000):
-//   Use external production URL if explicitly provided (e.g. separate backend service),
-//   otherwise use same-origin '/api' (unified single-service deployment).
-// - In local frontend dev (ports 5173 or 3000):
-//   Fallback to local backend at 'http://localhost:8000/api'.
+// - In production / deployed access or Vercel multi-service routing:
+//   Use same-origin '/api' (matching Vercel service rewrites).
+// - If external production URL is explicitly provided in VITE_API_BASE_URL, use that.
+// - In local Vite dev server, requests to '/api' are proxied to BACKEND_URL (defaulting to localhost:8000).
 const resolveApiBaseUrl = (): string => {
-  if (typeof window !== 'undefined' && window.location) {
-    const isDevPort = window.location.port === '5173' || window.location.port === '3000';
-    if (!isDevPort) {
-      if (
-        envApiUrl &&
-        /^https?:\/\//i.test(envApiUrl) &&
-        !envApiUrl.includes('localhost') &&
-        !envApiUrl.includes('127.0.0.1')
-      ) {
-        return envApiUrl;
-      }
-      return '/api';
-    }
+  if (
+    envApiUrl &&
+    /^https?:\/\//i.test(envApiUrl) &&
+    !envApiUrl.includes('localhost') &&
+    !envApiUrl.includes('127.0.0.1')
+  ) {
+    return envApiUrl;
   }
-  return envApiUrl || 'http://localhost:8000/api';
+  if (typeof window !== 'undefined' && window.location) {
+    return '/api';
+  }
+  return envApiUrl || 'http://127.0.0.1:8000/api';
 };
 
 export const API_BASE_URL = resolveApiBaseUrl().replace(/\/+$/, '');

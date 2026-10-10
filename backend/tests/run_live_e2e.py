@@ -1,10 +1,11 @@
+import os
 import requests
 import json
 import io
 import time
 from pypdf import PdfWriter
 
-BASE_URL = "http://127.0.0.1:8000"
+BASE_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000").rstrip("/")
 
 def create_dummy_pdf():
     writer = PdfWriter()

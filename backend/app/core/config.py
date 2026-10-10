@@ -29,7 +29,11 @@ class Settings(BaseSettings):
 
     
     # Database Configuration
-    DATABASE_PATH: Path = PROJECT_ROOT / "database" / "she_twin.db"
+    DATABASE_PATH: Path = (
+        Path("/tmp/she_twin.db")
+        if os.getenv("VERCEL")
+        else PROJECT_ROOT / "database" / "she_twin.db"
+    )
     DATABASE_URL: str = os.getenv("DATABASE_URL", f"sqlite:///{DATABASE_PATH}")
     DIRECT_URL: Optional[str] = os.getenv("DIRECT_URL", None)
     
@@ -39,7 +43,11 @@ class Settings(BaseSettings):
     SUPABASE_SERVICE_ROLE_KEY: str = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
     
     # Upload storage
-    UPLOAD_DIR: Path = PROJECT_ROOT / "database" / "uploads"
+    UPLOAD_DIR: Path = (
+        Path("/tmp/uploads")
+        if os.getenv("VERCEL")
+        else PROJECT_ROOT / "database" / "uploads"
+    )
     
     # CORS
     CORS_ORIGINS: str = os.getenv(
@@ -100,5 +108,8 @@ class Settings(BaseSettings):
 settings = Settings()
 
 # Ensure local directories exist
-os.makedirs(settings.DATABASE_PATH.parent, exist_ok=True)
-os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
+try:
+    os.makedirs(settings.DATABASE_PATH.parent, exist_ok=True)
+    os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
+except OSError:
+    pass
